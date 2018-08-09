@@ -9,5 +9,6 @@ module.exports = {
                 SwitchCase: 1,
             },
         ],
+        'lines-between-class-members': [0]
     },
 };

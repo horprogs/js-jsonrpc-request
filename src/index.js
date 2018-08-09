@@ -1,57 +1,77 @@
 // @flow
-
 import axios from 'axios';
 import { Promise } from 'es6-promise';
 
-const getUniqId = (() => {
-    let counter = 0;
-
-    return () => {
-        counter += 1;
-
-        if (!Number.isSafeInteger(counter)) {
-            counter = 0;
-        }
-
-        return counter;
-    };
-})();
-
 class JsonRpcClient {
-    static allowedFields = ['asCurl', 'getCacheKey', 'getRequestOptions'];
+    apiRoute: string;
+    headers: {};
+    withMeta: ?boolean;
+    requestId: number;
 
     static defaultHeaders = {
         'Content-Type': 'application/json',
     };
 
-    constructor({ apiRoute, headers = {} }: { apiRoute: string }) {
+    static getUniqId = (() => {
+        let counter = 0;
+
+        return () => {
+            counter += 1;
+
+            if (!Number.isSafeInteger(counter)) {
+                counter = 0;
+            }
+
+            return counter;
+        };
+    })()
+
+    constructor({
+        apiRoute,
+        headers = {},
+        withMeta,
+    }: {
+        apiRoute: string,
+        headers: {},
+        withMeta: boolean,
+    }) {
         this.apiRoute = apiRoute;
         this.headers = { ...JsonRpcClient.defaultHeaders, ...headers };
+        this.withMeta = withMeta;
     }
 
-    asCurl() {
-        const options = {};
+    asCurl(method: string, params: {}, id: number) {
+        const options = {
+            jsonrpc: '2.0',
+            method,
+            params,
+            id,
+        };
 
-        const headers = Object.keys(options.headers).map(
-            key => `-H '${key}: ${options.headers[key]}'`
+        const headers = Object.keys(this.headers).map(
+            (key) => `-H '${key}: ${this.headers[key]}'`
         );
 
         return [
             'curl -i',
             '-X POST',
             headers.join(' '),
-            `--data-binary '${options.body}'`,
-            `'${options.uri}'`,
+            `--data-binary '${JSON.stringify(options)}'`,
+            `'${this.apiRoute}'`,
         ].join(' ');
     }
 
-    request(method, params) {
+    request(method: string, params: {}) {
+        this.requestId = JsonRpcClient.getUniqId();
+
         const body = {
             jsonrpc: '2.0',
             method,
             params,
-            id: getUniqId(),
+            id: this.requestId,
         };
+
+        const startTime = new Date();
 
         return new Promise((resolve, reject) => {
             axios
@@ -70,19 +90,32 @@ class JsonRpcClient {
                         return;
                     }
 
-                    resolve(res.result);
+                    let meta = {};
+
+                    if (this.withMeta) {
+                        meta = {
+                            curl: this.asCurl(method, params, this.requestId),
+                            timeRequest: new Date() - startTime,
+                        };
+                    }
+
+                    resolve({ data: res.result, meta });
+                })
+                .catch((err) => {
+                    if (err.response) {
+                        reject({
+                            error: err.response.statusText,
+                            code: err.response.status,
+                        });
+                        return;
+                    }
+
+                    reject({
+                        error: 'Unknown error',
+                    });
                 });
         });
     }
 }
 
-const json = new JsonRpcClient({
-    apiRoute: '/api/rpc/v1.0',
-    headers: {
-        'X-API-CLIENT': 'key',
-    },
-});
-
-json.request('dictionary.getPositions', {})
-    .then((data) => console.log('SUCCESS', data))
-    .catch((err) => console.log('ERROR', err));
+export default JsonRpcClient;
