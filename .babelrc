@@ -1,0 +1,15 @@
+{
+  "plugins": [
+    [
+      "transform-class-properties",
+      {
+        "spec": true
+      }
+    ]
+  ],
+  "presets": [
+    "stage-0",
+    "es2015"
+
+  ]
+}
