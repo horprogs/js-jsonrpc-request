@@ -3,19 +3,19 @@ Isomorphic JSON-RPC 2.0 client for browser and Node.js with logging curl and tim
 # Installation
 
 ```shell
-yarn add isomorphic-js-jsonrpc
+yarn add js-jsonrpc-request
 ```
 
 or
 
 ```shell
-npm install isomorphic-js-jsonrpc --save
+npm install js-jsonrpc-request --save
 ```
 
 # Usage
 
 ```js
-import JsonRpcClient from 'isomorphic-js-jsonrpc';
+import JsonRpcClient from 'js-jsonrpc-request';
 
 const jsonrpc = new JsonRpcClient({
     apiRoute: '/api/rpc/v1.0',
