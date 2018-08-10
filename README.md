@@ -34,3 +34,13 @@ jsonrpc
     })
     .catch((err) => console.log('ERROR', err));
 ```
+
+`data` - data response from API
+
+`curl` - curl for request API, for example
+
+```shell
+curl -i -X POST -H 'Content-Type: application/json' -H 'X-API-CLIENT: key' --data-binary '{"jsonrpc":"2.0","method":"info.getSomething","params":{"data":"something"},"id":1}' 'http://example.com/api/rpc/v1.0'
+```
+
+`timeRequest` - time in ms for request (for example 305 ms)

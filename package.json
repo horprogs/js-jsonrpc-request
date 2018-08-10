@@ -7,7 +7,7 @@
     "start": "gulp",
     "build": "gulp build",
     "prepare": "npm run build",
-    "release": "release-it"
+    "release": "release-it --no-npm.publish & npm publish"
   },
   "repository": {
     "type": "git",
