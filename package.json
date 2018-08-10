@@ -1,12 +1,12 @@
 {
   "name": "jsonrpc-js",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "author": "Horprogs",
   "license": "MIT",
   "scripts": {
     "start": "gulp",
     "build": "gulp build",
-    "prepublish": "npm run build",
+    "prepare": "npm run build",
     "release": "release-it"
   },
   "repository": {
