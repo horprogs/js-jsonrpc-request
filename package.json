@@ -1,7 +1,6 @@
 {
-  "name": "isomorphic-js-jsonrpc",
-  "version": "1.0.0",
-  "main": "index.js",
+  "name": "jsonrpc-js",
+  "version": "0.0.1",
   "author": "Horprogs",
   "license": "MIT",
   "scripts": {
@@ -36,6 +35,7 @@
     "flow-bin": "^0.78.0",
     "gulp": "^3.9.1",
     "gulp-babel": "^7.0.1",
-    "prettier": "^1.14.2"
+    "prettier": "^1.14.2",
+    "release-it": "^7.5.0"
   }
 }
