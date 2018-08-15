@@ -24,13 +24,13 @@ class JsonRpcClient {
 
             return counter;
         };
-    })()
+    })();
 
     constructor({
         apiRoute,
         headers = {},
         withMeta,
-    }: {
+    }: {                                                         
         apiRoute: string,
         headers: {},
         withMeta: boolean,
@@ -40,28 +40,39 @@ class JsonRpcClient {
         this.withMeta = withMeta;
     }
 
-    asCurl(method: string, params: {}, id: number) {
-        const options = {
+    asCurl(
+        method: string,
+        params: {},
+        id: number,
+        options: { headers: {} } = { headers: {} }
+    ) {
+        const body = {
             jsonrpc: '2.0',
             method,
             params,
             id,
         };
 
-        const headers = Object.keys(this.headers).map(
-            (key) => `-H '${key}: ${this.headers[key]}'`
+        const allHeaders = { ...this.headers, ...options.headers };
+
+        const headers = Object.keys(allHeaders).map(
+            (key) => `-H '${key}: ${allHeaders[key]}'`
         );
 
         return [
             'curl -i',
             '-X POST',
             headers.join(' '),
-            `--data-binary '${JSON.stringify(options)}'`,
+            `--data-binary '${JSON.stringify(body)}'`,
             `'${this.apiRoute}'`,
         ].join(' ');
     }
 
-    request(method: string, params: {}) {
+    request(
+        method: string,
+        params: {},
+        options: { headers: {} } = { headers: {} }
+    ) {
         this.requestId = JsonRpcClient.getUniqId();
 
         const body = {
@@ -73,9 +84,13 @@ class JsonRpcClient {
 
         const startTime = new Date();
 
+        const headers = { ...this.headers, ...options.headers };
+
         return new Promise((resolve, reject) => {
             axios
-                .post(this.apiRoute, body, { headers: this.headers })
+                .post(this.apiRoute, body, {
+                    headers,
+                })
                 .then(({ data: res }) => {
                     if (!res) {
                         reject({ error: 'Unknown error' });
@@ -94,7 +109,9 @@ class JsonRpcClient {
 
                     if (this.withMeta) {
                         meta = {
-                            curl: this.asCurl(method, params, this.requestId),
+                            curl: this.asCurl(method, params, this.requestId, {
+                                headers,
+                            }),
                             timeRequest: new Date() - startTime,
                         };
                     }
