@@ -44,3 +44,19 @@ curl -i -X POST -H 'Content-Type: application/json' -H 'X-API-CLIENT: key' --dat
 ```
 
 `timeRequest` - time in ms for request (for example 305 ms)
+
+Also, you can add additional options to request. Support options: `headers`. It will be added to headers in constructor.
+
+```js
+import JsonRpcClient from 'js-jsonrpc-request';
+
+const jsonrpc = new JsonRpcClient({
+    apiRoute: '/api/rpc/v1.0',
+    headers: {
+        'X-API-CLIENT': 'key',
+    },
+    withMeta: true,
+});
+
+jsonrpc.request('info.getSomething', { data: 'something' }, { headers: {'X-ACCESS_TOKEN': 'token' }});
+```
